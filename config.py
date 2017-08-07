@@ -9,4 +9,4 @@ class Config:
     PORT = 80
     DEBUG = True
     SECRET_KEY = 'python123'
-    LOGIN_VIEW = 'login'
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
