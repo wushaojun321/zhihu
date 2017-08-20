@@ -58,7 +58,7 @@
  							 {{ current_user.username }}<b class="caret"></b>
  						<ul class="dropdown-menu">
 							<li>
-								<a href="{{ url_for('auth.change_account') }}"><i class="icon-user"></i> 我的资料  </a>
+								<a href="change_account\{{ current_user.id }}"><i class="icon-user"></i> 我的资料  </a>
 							</li>
 							
 							<li>
@@ -118,17 +118,23 @@
 						<span class="account-name">
 						{% if current_user.is_authenticated %}
  							 {{ current_user.username }}
+	 						<span class="account-actions">
+								<a href="javascript:;">粉丝：{{ current_user.counter_followed()[1] }}</a> <br>
+								
+								<a href="javascript:;">关注：{{ current_user.counter_follower()[1] }}</a>
+							</span>
  						{% else %}
  							 游客
+ 						<span class="account-actions">
+							<a href="{{ url_for('auth.login') }}">点击登录</a> <br>
+							
+							
+						</span>
 						{% endif %} </span>
 						
-						<span class="account-role">Administrator</span>
+
 						
-						<span class="account-actions">
-							<a href="javascript:;">Profile</a> |
-							
-							<a href="javascript:;">Edit Settings</a>
-						</span>
+
 					
 					</div> <!-- /account-details -->
 				
@@ -225,5 +231,58 @@
 
 <script src="../static/js/bootstrap.js"></script>
 
-  </body>
+
+
+<script>
+    function show(box) {
+       // var box = document.getElementById("box");
+        var text = box.innerHTML;
+        var newBox = document.createElement("div");
+        var btn = document.createElement("a");
+        newBox.innerHTML = text.substring(0, 80);
+        btn.innerHTML = text.length > 80 ? "...显示全部" : "";
+        btn.href = "###";
+        btn.onclick = function () {
+            if (btn.innerHTML == "...显示全部") {
+                btn.innerHTML = "收起";
+                newBox.innerHTML = text;
+            } else {
+                btn.innerHTML = "...显示全部";
+                newBox.innerHTML = text.substring(0, 80);
+            }
+            return false;
+        }
+        box.innerHTML = "";
+        box.appendChild(newBox);
+        box.appendChild(btn);
+    }
+    var divs = document.getElementsByTagName('div')
+    for (var i = 0; i < divs.length; i++) {
+        if (divs[i].className == 'box') show(divs[i]);
+    }
+</script>
+<script type="text/javascript">
+$('#page111').bs_pagination({ 
+    totalPages:5,//总页数：由接口返回（AJAX） 
+    currentPage:1,//当前页：由前端指定 
+    visiblePageLinks:5,//显示的最多分页链接数 
+    showGoToPage:false, 
+    showRowsPerPage: false, 
+    showRowsInfo: false, 
+    showRowsDefaultInfo: false, 
+    mainWrapperClass:'dataPage clearfix', 
+    navListContainerClass:'', 
+    navListClass:'pagination-sm pagination', 
+    containerClass:'', 
+    onChangePage:function(e,obj){//returns page_num and rows_per_page 
+        //当分页被点击的时候，事件回调 
+        //obj.currentPage;//获取点击对象里的当前页 
+          
+    } 
+});
+</script>
+{% block script %}
+{% endblock %}
+
+</body>
 </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<h1>
+	{{ question.title }}
+	
+
+	<h2>
+		{{ question.description }}
+	</h2>
+	{% if res_answers==None %}
+		<h2>
+			埋有答案，你来答吧！
+		</h2>
+	{% else %}
+		{% for i in res_answers %}
+		<p>
+			{{ i.content }}
+		</p>
+			{% for j in res_comment.filter_by(answer_id=i.id) %}
+		<small>
+				{{ j.content }}
+		</small>
+			{% endfor %}
+		<p>{{ d.get(i.id,'wrong!') }}</p>
+		{% endfor %}
+	{% endif %}
+
+</h1>
+</body>
+</html>

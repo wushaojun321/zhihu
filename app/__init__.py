@@ -6,6 +6,7 @@ from config import Config
 
 db = SQLAlchemy()
 
+FOLLOW = {}
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
