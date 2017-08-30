@@ -46,7 +46,18 @@
 		</div> <!-- /container -->
 		
 	</div> <!-- /navbar-inner -->
-	
+		{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<div class="alert alert-warning" style="text-align:center">
+		<a href="#" class="close" data-dismiss="alert">
+			&times;
+		</a>
+		{% for message in messages %}
+		<strong>{{ message }}</strong>
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% endwith %}
 </div> <!-- /navbar -->
 
 

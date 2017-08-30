@@ -8,14 +8,14 @@
 				</h1>
 
 				
-				<div class="row">
+
 					
 
 				
 						<div class="widget">
 							
 							<div class="widget-header">
-								<h3>基本信息</h3>
+								<h3>用户信息</h3>
 							</div> <!-- /widget-header -->
 									
 							<div class="widget-content">
@@ -28,7 +28,8 @@
 						<br />
 						
 							<div class="tab-content">
-								<div class="tab-pane active" id="1">
+							<div class="tab-pane active" id="1">
+							<div>
 							<form method="post" action="{{ url_for('auth.change_password')}}" id="edit-profile" class="form-horizontal" />
 								<fieldset>
 										
@@ -55,27 +56,7 @@
 											<div class="controls">
 												<input type="text" class="input-medium disabled" id="username" value="{{ user_query.email }}" disabled=""/>
 											</div>
-										</div>
-										<div class="control-group">											
-											<label class="control-label" for="email">关注的问题</label>
-											<div class="controls">
-												<input type="text" class="input-medium disabled" id="username" value="{{ user_query.counter_question_attention()[1] }}" disabled=""/><a href="">点击查看</a>
-											</div>
-
-										</div>
-										<div class="control-group">											
-											<label class="control-label" for="email">点过的赞</label>
-											<div class="controls">
-												<input type="text" class="input-medium disabled" id="username" value="{{ user_query.counter_like_answer()[1] }}" disabled=""/><a href="">点击查看</a>
-											</div>
-											
-										</div>
-
-
-			
-										
-										
-										
+										</div>										
 										
 										{% if current_user.id==user_query.id %}
 										<div class="control-group">											
@@ -92,17 +73,45 @@
 												<input name="confirm_password" type="password" class="input-medium" id="password2" />
 											</div> <!-- /controls -->				
 										</div> <!-- /control-group -->
+										{% endif %}
+										<div class="control-group">											
+											<label class="control-label" for="email">TA关注的问题</label>
+											<div class="controls">
+												<input type="text" class="input-medium disabled" id="username" value="{{ user_query.counter_question_attention()[1] }}" disabled=""/><a href="{{ url_for('main.question_list',ask_or_atten='atten',user_id=user_query.id) }}">点击查看</a>
+											</div>
 
+										</div>
+										<div class="control-group">											
+											<label class="control-label" for="email">TA点过的赞</label>
+											<div class="controls">
+												<input type="text" class="input-medium disabled" id="username" value="{{ user_query.counter_like_answer()[1] }}" disabled=""/><a href="">点击查看</a>
+											</div>
+											
+										</div>
+										<div class="control-group">											
+											<label class="control-label" for="email">TA的问题</label>
+											<div class="controls">
+												<input type="text" class="input-medium disabled" id="username" value="{{ user_query.counter_question_attention()[1] }}" disabled=""/><a href="{{ url_for('main.question_list',ask_or_atten='ask',user_id=user_query.id) }}">点击查看</a>
+											</div>
+
+										</div>
+										<div class="control-group">											
+											<label class="control-label" for="email">TA的答案</label>
+											<div class="controls">
+												<input type="text" class="input-medium disabled" id="username" value="{{ user_query.counter_like_answer()[1] }}" disabled=""/><a href="">点击查看</a>
+											</div>
+											
+										</div>
 										
 										
 											
 											<br />
 										
 											
-										<div class="form-actions">
+											<div style="text-align:center">
 											<button type="submit" class="btn btn-primary">Save</button> 
-										</div> <!-- /form-actions -->
-										{% endif %}
+											</div>
+									
 								</fieldset>
 								</form>
 								</div>
@@ -110,8 +119,7 @@
 		
 							</div>
 						  
-						  
-						</div>
+
 								
 								
 								

@@ -1,4 +1,26 @@
 {% extends './base.html' %}
 	{% block content %}
-	ask
+	<div class="span9">
+	
+	<h1 class="page-title">
+		<i class="icon-pushpin"></i>
+		问题编辑					
+	</h1>
+	</div>
+	<div class="span9">
+		<form action="/ask" method="post">	
+			<div>
+			<label><strong>问题标题</strong></label>
+			<input style="width:90%" name="title" />
+			<label><strong>问题描述</strong></label>
+			<textarea style="width:90%" class="form-control" rows="10" name="description"></textarea>
+			<br>
+			
+			</div>
+			<div style="text-align:center"><input type="submit" value="提交" /></div>
+			
+
+		</form>
+
+	</div>
 	{% endblock %}

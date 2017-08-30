@@ -23,16 +23,26 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-	
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head>
+	{% block link %}
+	{% endblock%}
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style>
+p.indentation
+{
+
+	text-indent: 25px;
+} 
+</style>
+ </head>
 
 <body>
-	
+
 <div class="navbar navbar-fixed-top">
-	
+
 	<div class="navbar-inner">
 		
 		<div class="container">
+
 			
 			<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse"> 
 				<span class="icon-bar"></span> 
@@ -40,9 +50,10 @@
 				<span class="icon-bar"></span> 				
 			</a>
 			
-			<a class="brand" href="./">知乎</a>
+			<a class="brand" href="{{ url_for('main.index') }}">知乎</a>
 			
 			<div class="nav-collapse">
+
 			
 				<ul class="nav pull-right">
 					<li>
@@ -58,7 +69,7 @@
  							 {{ current_user.username }}<b class="caret"></b>
  						<ul class="dropdown-menu">
 							<li>
-								<a href="change_account\{{ current_user.id }}"><i class="icon-user"></i> 我的资料  </a>
+								<a href="{{ url_for('auth.change_account',user_id=current_user.id)}}"><i class="icon-user"></i> 我的资料  </a>
 							</li>
 							
 							<li>
@@ -93,24 +104,38 @@
 		</div> <!-- /container -->
 		
 	</div> <!-- /navbar-inner -->
-	
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<div class="alert alert-warning" style="text-align:center">
+		<a href="#" class="close" data-dismiss="alert">
+			&times;
+		</a>
+		{% for message in messages %}
+		<strong>{{ message }}</strong>
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% endwith %}
 </div> <!-- /navbar -->
-
+{% block bigcontent %}	
 
 
 
 <div id="content">
-	
+
 	<div class="container">
 		
 		<div class="row">
-			
+
+			{% block userinformation %}
 			<div class="span3">
 				
 				<div class="account-container">
 				
 					<div class="account-avatar">
+						{% block img %}
 						<img src="../static/img/headshot.png" alt="" class="thumbnail" />
+						{% endblock %}
 					</div> <!-- /account-avatar -->
 				
 					<div class="account-details">
@@ -168,12 +193,7 @@
 					</li>
 				
 					
-					<li>
-						<a href="{{ url_for('main.write_text') }}">
-							<i class="icon-signal"></i>
-							写文章	
-						</a>
-					</li>
+
 					
 					
 					
@@ -190,7 +210,7 @@
 				<br />
 		
 			</div> <!-- /span3 -->
-			
+			{% endblock %}
 			
 			{% block content %}
 			{% endblock %}
@@ -209,8 +229,8 @@
 	</div> <!-- /container -->
 	
 </div> <!-- /content -->
-					
-	
+{% endblock %}				
+{% block foot %}
 <div id="footer">
 	
 	<div class="container">				
@@ -219,7 +239,7 @@
 	</div> <!-- /container -->
 	
 </div> <!-- /footer -->
-
+{% endblock %}
 
     
 

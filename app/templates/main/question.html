@@ -1,34 +1,78 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title></title>
-</head>
-<body>
-<h1>
-	{{ question.title }}
-	
+{% extends "./base.html" %}
+{% block bigcontent %}
 
-	<h2>
-		{{ question.description }}
+<div>		
+<div style="color:#ABB2B9;text-align: center;">
+		<div>
+		<h3>
+		{{ question.title }}					
+	</h3>
+
+	</div>
+
+	<div class="box">
+		<h3>
+		<strong>{{ question.title }}</strong> 			
+	</h3>
+		<h4>{{ question.description }}</h4>
+	</div>	
+</div>
+
+{% if answers.all()==[] %}
+	<h2 style="text-align:center;">
+		<a href="#">此问题现在没有答案，我来答吧！</a>
 	</h2>
-	{% if res_answers==None %}
-		<h2>
-			埋有答案，你来答吧！
-		</h2>
-	{% else %}
-		{% for i in res_answers %}
-		<p>
-			{{ i.content }}
-		</p>
-			{% for j in res_comment.filter_by(answer_id=i.id) %}
-		<small>
-				{{ j.content }}
-		</small>
-			{% endfor %}
-		<p>{{ d.get(i.id,'wrong!') }}</p>
-		{% endfor %}
-	{% endif %}
+{% else %}
 
-</h1>
-</body>
-</html>
+<div style="width:70%;margin-left:auto;margin-right:auto;">
+	{% for answer in answers %}
+		<div class="span9" style="margin: 0 auto">
+		  <div class="widget-content">
+		  <a href="{{ url_for("auth.change_account",user_id=answer.user.id) }}">{{ answer.user.name }}</a>发表于{{ answer.add_time }}<br>
+		  <p class="indentation">{{ answer.content }}	</p>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#accordion" 
+				  			href="#collapse{{answer.id}}">评论↓（{{ answer.comment_counter }}）
+						</a>
+						<a href="#">赞（{{ answer.like_counter }}）</a>
+					</h4>
+				</div>
+			<div id="collapse{{answer.id}}" class="panel-collapse collapse">
+				<div class="panel-body">
+				<div>
+
+					<form>
+						<input style="width:85%;height:30px" type="text" placeholder="写下您的评论">
+						<input style="width:10%;height:30px" class="btn btn-info" type="button" name="" value="提交">
+					</form>
+				</div>
+				{% if answer.comment_counter == 0 %}
+				<p>此答案暂时还没有评论，快来评论吧</p>
+				{% else %}
+					{% for comment in answer.get_comment_answer()[0] %}
+					<p class="indentation">{{ comment.content }}</p>
+					<p style="text-align: right;"><a href="{{url_for('auth.change_account',user_id=comment.user_id)}}">{{comment.user.name}}</a>（发表于{{comment.add_time}}）</p>
+					{% endfor %}
+				{% endif %}
+				</div>
+			</div>
+	
+		  </div>
+		</div>
+
+</div>
+
+	{% endfor %}
+
+{% endif %}
+
+</div>
+
+{% endblock %}
+{% block foot %}
+
+{% endblock %}
+{% block img %}
+{% endblock %}

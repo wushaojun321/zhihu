@@ -4,15 +4,22 @@
 				
 				<h1 class="page-title">
 					<i class="icon-pushpin"></i>
-					Frequently Asked Questions					
+					搜索					
 				</h1>
 				
 				<div class="widget">
 														
 					<div class="widget-content">
-						
-						
-										
+						<form method="post" action="/search">
+						<div class="input-group col-md-3" style="text-align:center">  
+				      		<input name="keyword" type="text" class="form-control" placeholder="问题/答案/用户名" / >  
+				      		<br>
+				            <span class="input-group-btn">  
+				               <button class="btn btn-info btn-search">查找</button>  
+				            </span>  
+ 						</div> 
+ 						</form>
+								
 					</div> <!-- /widget-content -->
 					
 				</div> <!-- /widget -->
@@ -20,4 +27,39 @@
 				
 				
 			</div> <!-- /span9 -->
+			<div class="span9">
+			{% if res_question != [] %}
+			<h1 class="page-title">
+					<i class="icon-pushpin"></i>
+					搜索结果（问题）					
+				</h1>
+			{% endif %}
+			<ul>
+							{% for question in res_question %}
+								<li><a href="{{ url_for('main.question',question_id=question.id) }}">{{ question.title }}</a></li>
+							{% endfor %}
+			</ul>
+			{% if res_answer != [] %}
+			<h1 class="page-title">
+					<i class="icon-pushpin"></i>
+					搜索结果（答案）					
+				</h1>
+			{% endif %}
+			<ul>
+							{% for answer in res_answer %}
+								<li><a href="{{ url_for('main.question',question_id=answer.question_id) }}">{{ answer.content }}</a></li>
+							{% endfor %}
+						</ul>
+			{% if res_user != [] %}
+			<h1 class="page-title">
+					<i class="icon-pushpin"></i>
+					搜索结果（用户名）					
+				</h1>
+			{% endif %}
+			<ul>
+							{% for user in res_user %}
+								<li><a href="{{ url_for('auth.change_account',user_id=user.id) }}">{{ user.username }}</a></li>
+							{% endfor %}
+						</ul>
+			</div>
 	{% endblock %}
