@@ -1,0 +1,29 @@
+环境：
+      win7+sublime
+使用：
+      flask+sqlalchemy(连接mysql)+bootscript
+架构：
+      使用flask_blueprint前后端分别分为两大块auth和main，其中auth主要实现用户功能，main实现其他功能
+数据库模型：
+      1、主要包括模型有roles,users,questions,answers,answer_comments
+      2、还有其他为实现一对多，多对多建立的模型
+      3、为在视图函数中简化查询，模型中还实现了一些方法，如，Qusetion.answer_sort_by_like()
+         返回此问题按照赞序排序的答案
+      4、模型中包括一些静态方法，用来初始化数据库
+      5、app/insert_db.py用来插入测试数据，可在shell中运行mange.py调用此模块插入测试数据
+功能：
+      auth:
+           1，用户注册
+           2，登录（flask_login）
+           3，资料修改（包括查看其他用户信息）
+           4，用户关注（多对多关系）
+      main:
+           1，展示热门答案
+           2，提问
+           3，回答问题
+           4，评论答案
+           5，赞答案
+           6，关注问题
+中间遇到的问题：
+      1，用户访问首页时由于每次都要对通过查询表like_answers统计每个答案的赞，并排序，导致访问首页速度变慢
+      解决：在answers表格中插入一行like_counter，并用静态方法insert_comment_counter()进行初始化，在视图函数中直接按照answers中的列like_counter进行排序就行，但是又导致一个问题：在插入答案和删除答案的时候怎么使得like_counter实时更新？直接在原基础上+1或-1肯定不行，可以先将其拿出来放在内存里？
