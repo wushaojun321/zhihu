@@ -119,8 +119,8 @@ class Answer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(255), nullable=False) 
     add_time = db.Column(db.DateTime, default = datetime.datetime.now)
-    like_counter = db.Column(db.Integer)
-    comment_counter = db.Column(db.Integer)
+    like_counter = db.Column(db.Integer, default=0)
+    comment_counter = db.Column(db.Integer, default=0)
     #一对多中一的一方
     comment_answers = db.relationship('Comment_answer', backref='answer', lazy='dynamic')
     like_answers = db.relationship('Like_answer', backref='answer', lazy='dynamic')
@@ -161,7 +161,7 @@ class Answer(db.Model):
 
     def get_comment_answer(self):
         '''Answer的方法，返回此答案的关注的列表、数目'''
-        res = Comment_answer.query.filter_by(answer_id=self.id)
+        res = Comment_answer.query.filter_by(answer_id=self.id).order_by(Comment_answer.add_time.desc())
         res_counter = len(res.all())
         return res,res_counter
 

@@ -10,7 +10,7 @@
 			{% if answers == [] %}
 				<h2>数据库出错！</h2>
 			{% else %}
-				{% for i in answers %}
+				{% for answer in answers %}
 
 				<div class="row">
 					
@@ -20,18 +20,35 @@
 									
 							<div class="widget-content">
 								
-								<h3><a href='{{ url_for('main.question',question_id=i.question.id) }}'>{{ i.question.title}}</a></h3>
-								<p><font size="2" face="arial" color="black">{{ i.question.add_time }}</font></p>
+								<h3><a href='{{ url_for('main.question',question_id=answer.question.id) }}'>{{ answer.question.title}}</a></h3>
+								<p><font size="2" face="arial" color="black">{{ answer.question.add_time }}</font></p>
 
 								<div class="box">
-								<p class="indentation">{{ i.content }}</p>
+								<p class="indentation">{{ answer.content }}</p>
 
 								</div>
 								<p align="right">
-								<a class="btn btn-default" href="#" role="button">关注（{{ i.question.attention_counter }}）</a>
-								<a class="btn btn-default" href='{{ url_for('main.question',question_id=i.question.id) }}' role="button">评论（{{ i.comment_counter }}）</a>
-								<a class="btn btn-default" href="#" role="button">赞（{{ i.like_counter }}）</a>
+								<a class="btn btn-default" href="#" role="button">关注（{{ answer.question.attention_counter }}）</a>
+								<a data-toggle="collapse" data-parent="#accordion" 
+				  			href="#collapse{{answer.id}}" class="btn btn-default" role="button">评论（{{ answer.comment_counter }}）</a>
+								<a class="btn btn-default" href="#" role="button">赞（{{ answer.like_counter }}）</a>
 								</p>
+								<div id="collapse{{answer.id}}" class="panel-collapse collapse">
+									<div class="panel-body">
+										<div>
+											<form method="post" action="">
+												<input style="width:100%;height:30px" name="comment_content" type="text" placeholder="写下您的评论"><br>
+												<input style="width:10%;height:30px"  class="btn btn-info" type="submit" name="" value="提交">
+											</form>
+											{% for comment in answer.get_comment_answer()[0] %}
+											<p>{{comment.user.name}}:{{comment.content}}</p>
+
+											{% endfor %}
+										</div>
+									</div>
+								</div>
+
+
 								
 							</div> <!-- /widget-content -->
 							

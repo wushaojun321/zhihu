@@ -1,3 +1,4 @@
+#encoding:utf8
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
@@ -12,7 +13,7 @@ login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
 
 def create_app():
-	'''创建flask应用，并初始化'''
+    '''创建flask应用，并初始化'''
     app = Flask(__name__)
     app.config.from_object(Config)
 

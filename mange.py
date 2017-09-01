@@ -12,9 +12,9 @@ manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 def insert_test_data():
     with app.test_request_context():
-    	db.drop_all()
-    	db.create_all()
-    	insert_db.go(models,db)
+        db.drop_all()
+        db.create_all()
+    insert_db.go(models,db)
 
 if __name__ == '__main__':
     # with app.test_request_context():

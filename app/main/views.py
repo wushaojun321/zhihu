@@ -1,5 +1,5 @@
 #encoding:utf8
-from flask import render_template, request, g, abort, redirect, url_for
+from flask import render_template, request, g, abort, redirect, url_for, flash
 from ..main import main
 from flask_login import login_user, current_user
 from ..models import db, Answer, Like_answer, Question, Comment_answer, User
@@ -84,6 +84,45 @@ def question_list(ask_or_atten,user_id):
     if ask_or_atten == 'atten':
         res = user.counter_question_attention()[0]
     return render_template('main/question_list.html', res=res, user=user)
+
+@main.route('/submit_comment/<answer_id>/<question_id>', methods=['POST'])
+def submit_comment(answer_id, question_id):
+    '''提交答案的评论的视图函数，只能用POST请求访问，作为一个跳板，不论评论成功还是失败
+    都重定向到question视图，返回之前的问题详情页面'''
+    comment_content = request.form.get('comment_content',None)
+    if comment_content is not None:
+        new_comment = Comment_answer(user_id=current_user.id,answer_id=answer_id,
+                                     content=request.form['comment_content'])
+        answer = Answer.query.get(answer_id)
+        answer.comment_counter = answer.comment_counter + 1
+        try:
+            db.session.add(new_comment)
+            db.session.add(answer)
+            db.session.commit()
+            flash("评论成功！")
+        except:
+            flash("数据库原因，评论失败！")
+
+        return redirect(url_for('main.question',question_id=question_id))
+
+@main.route('/submit_answer/<question_id>', methods=['POST'])
+def submit_answer(question_id):
+    '''提交问题的答案的视图函数,只能用POST请求访问，作为一个跳板，不论回答成功还是失败
+    都重定向到question视图，返回之前的问题详情页面'''
+    answer_content = request.form.get('answer_content',None)
+    if answer_content is not None:
+        new_answer = Answer(content=answer_content,user_id=current_user.id,
+                            question_id=question_id)
+        try:
+            db.session.add(new_answer)
+            db.session.commit()
+            flash("评论成功！")
+        except:
+            flash("数据库原因，评论失败！")
+    return redirect(url_for('main.question',question_id=question_id))
+
+
+
 
 
 

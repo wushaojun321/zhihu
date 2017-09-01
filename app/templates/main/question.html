@@ -25,6 +25,13 @@
 {% else %}
 
 <div style="width:70%;margin-left:auto;margin-right:auto;">
+		<div class="span9" style="margin: 0 auto">
+		<form method="post" action="/submit_answer/{{question.id}}">
+			<textarea style="width:100%;height:90px" name="answer_content" type="text" placeholder="写下您的答案"></textarea><br>
+
+			<input style="width:10%;height:30px"  class="btn btn-info" type="submit" name="" value="提交">
+		</form>		
+		</div>
 	{% for answer in answers %}
 		<div class="span9" style="margin: 0 auto">
 		  <div class="widget-content">
@@ -43,9 +50,10 @@
 				<div class="panel-body">
 				<div>
 
-					<form>
-						<input style="width:85%;height:30px" type="text" placeholder="写下您的评论">
-						<input style="width:10%;height:30px" class="btn btn-info" type="button" name="" value="提交">
+					<form method="post" action="/submit_comment/{{ answer.id }}/{{question.id}}">
+						<input style="width:85%;height:30px" name="comment_content" type="text" placeholder="写下您的评论">
+
+						<input style="width:10%;height:30px"  class="btn btn-info" type="submit" name="" value="提交">
 					</form>
 				</div>
 				{% if answer.comment_counter == 0 %}
