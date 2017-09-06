@@ -66,6 +66,16 @@ class User(UserMixin, db.Model):
         _L = [i.answer_id for i in b]
         res = Answer.query.filter(Answer.id.in_(tuple(_L))).all()
         return res, len(res) 
+    def judge_attention_question(self,question_id):
+        res = Attention_question.query.filter_by(user_id=self.id,question_id=question_id).first()
+        if res:
+            return True
+        return False
+    def judge_like_answer(self,answer_id):
+        res = Like_answer.query.filter_by(user_id=self.id,answer_id=answer_id).first()
+        if res:
+            return True
+        return False
 
 
 class Question(db.Model):
@@ -109,7 +119,19 @@ class Question(db.Model):
         res = Attention_question.query.filter_by(question_id=self.id).all()
         return len(res)
 
-    
+    @staticmethod
+    def update_attention_counter(question_id, plus_or_less):
+        question = Question.query.get(question_id)
+        if plus_or_less == 'plus':
+            question.attention_counter=question.attention_counter+1
+        if plus_or_less == 'less':
+            question.attention_counter=question.attention_counter-1
+        db.session.add(question)
+        try:
+            db.session.commit()
+            return True
+        except:
+            return False
 
 class Answer(db.Model):
     '''comment_counter、like_counter这两列通过调用静态方法insert_comment_counter、
@@ -164,6 +186,19 @@ class Answer(db.Model):
         res = Comment_answer.query.filter_by(answer_id=self.id).order_by(Comment_answer.add_time.desc())
         res_counter = len(res.all())
         return res,res_counter
+    @staticmethod
+    def update_like_counter(answer_id,plus_or_less):
+        answer = Answer.query.get(answer_id)
+        if plus_or_less == 'plus':
+            answer.like_counter = answer.like_counter+1
+        if plus_or_less == 'less':
+            answer.like_counter = answer.like_counter-1
+        db.session.add(answer)
+        try:
+            db.session.commit()
+            return True
+        except:
+            return False
 
 
 

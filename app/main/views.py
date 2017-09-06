@@ -2,7 +2,7 @@
 from flask import render_template, request, g, abort, redirect, url_for, flash
 from ..main import main
 from flask_login import login_user, current_user
-from ..models import db, Answer, Like_answer, Question, Comment_answer, User
+from ..models import db, Answer, Like_answer, Question, Comment_answer, User, Attention_question
 import collections
 import sqlalchemy
 from flask_login import login_required
@@ -20,6 +20,7 @@ def index():
     answers.sort(key=lambda i:i.like_counter,reverse=True)
     return render_template('main/index.html', answers = answers)
 
+
 @main.route('/question/<question_id>')
 def question(question_id):
     '''问题视图
@@ -34,7 +35,6 @@ def question(question_id):
     answers = question.answer_sort_by_like()
     return render_template('main/question.html', question = question, answers=answers)
 
-    
 
 
 @main.route('/ask', methods=['GET', 'POST'])
@@ -86,6 +86,7 @@ def question_list(ask_or_atten,user_id):
     return render_template('main/question_list.html', res=res, user=user)
 
 @main.route('/submit_comment/<answer_id>/<question_id>', methods=['POST'])
+@login_required
 def submit_comment(answer_id, question_id):
     '''提交答案的评论的视图函数，只能用POST请求访问，作为一个跳板，不论评论成功还是失败
     都重定向到question视图，返回之前的问题详情页面'''
@@ -120,6 +121,84 @@ def submit_answer(question_id):
         except:
             flash("数据库原因，评论失败！")
     return redirect(url_for('main.question',question_id=question_id))
+
+@main.route('/attention_question/<question_id>')
+@login_required
+def attention_question(question_id):
+    '''传入question_id，查询登录的用户是否关注了此问题，若关注，则取消，若未，则关注'''
+    _attention_question = Attention_question(user_id=current_user.id,question_id=question_id)
+    db.session.add(_attention_question)
+    try:
+        db.session.commit()
+        flash('关注成功！')
+    except Exception as e:
+        flash('关注失败（%s）' % e)
+    if Question.update_attention_counter(question_id,'plus'):
+        flash('更新此问题关注的总数成功！')
+    else:
+        flash('更新此问题关注的总数失败！')
+    return redirect(request.referrer)   
+
+@main.route('/cancel_attention_question/<question_id>')
+@login_required
+def cancel_attention_question(question_id):
+    '''传入question_id，查询登录的用户是否关注了此问题，若关注，则取消，若未，则关注'''
+    _attention_question = Attention_question.query.filter_by(
+                    user_id=current_user.id,question_id=question_id).first()
+    db.session.delete(_attention_question)
+    try:
+        db.session.commit()
+        flash('取消关注成功！')
+
+    except Exception as e:
+        flash('取消关注失败（%s）' % e)
+    if Question.update_attention_counter(question_id,'less'):
+        flash('更新此问题关注的总数成功！')
+    else:
+        flash('更新此问题关注的总数失败！')
+
+    return redirect(request.referrer)     
+
+@main.route('/like_answer/<answer_id>')
+@login_required
+def like_answer(answer_id):
+    '''传入answer_id，加上当前用户，在数据表Like_answer中插入一行,
+    并在answer的like_counter中相应位置+1,从而实现点赞功能'''
+    _like_answer = Like_answer(user_id=current_user.id,answer_id=answer_id)
+    db.session.add(_like_answer)
+    try:
+        db.session.commit()
+        flash('点赞成功！')
+    except Exception as e:
+        flash('点赞失败（%s）'%e)
+    if Answer.update_like_counter(answer_id=answer_id,plus_or_less='plus'):
+        flash('更新赞数成功！')
+    else:
+        flash('更新赞数失败！')
+    return redirect(request.referrer)
+
+@main.route('/cancel_like_answer/<answer_id>')
+@login_required
+def cancel_like_answer(answer_id):
+    '''传入answer_id，加上当前用户，在数据表Like_answer中插入一行,
+    并在answer的like_counter中相应位置+1,从而实现点赞功能'''
+    _like_answer = Like_answer.query.filter_by(user_id=current_user.id,answer_id=answer_id).first()
+    db.session.delete(_like_answer)
+    try:
+        db.session.commit()
+        flash('取消赞成功！')
+    except Exception as e:
+        flash('取消赞失败（%s）'%e)
+    if Answer.update_like_counter(answer_id=answer_id,plus_or_less='less'):
+        flash('更新赞数成功！')
+    else:
+        flash('更新赞数失败！')
+    return redirect(request.referrer)
+
+  
+
+
+
 
 
 
