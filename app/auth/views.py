@@ -43,9 +43,12 @@ def reg():
         #判断两侧密码是否一致，此功能最好在前端实现
         elif request.form['password'] != request.form['confirm_password']:
             flash('两次密码不一致！')
+        elif request.form['name'] == '' or User.query.filter_by(name=request.form['name']).first():
+            flash('姓名为空或者已经存在！')
         else:
             new_user = User(email=request.form['email'],
                             username=request.form['username'],
+                            name=request.form['name'],
                             password=request.form['password'])
             try:
                 db.session.add(new_user)
@@ -105,3 +108,19 @@ def change_password():
         db.session.commit()
         flash(message1+message2)
         return redirect(url_for('auth.change_account', user_id=user_query.id))
+
+@auth.route('/attention_user/<followed_id>')
+def attention_user(followed_id):
+    if current_user.attention_user(followed_id):
+        flash('关注成功！')
+    else:
+        flash('关注失败！')
+    return redirect(request.referrer)
+
+@auth.route('/cancel_attention_user/<followed_id>')
+def cancel_attention_user(followed_id):
+    if current_user.cancel_attention_user(followed_id):
+        flash('取消关注成功！')
+    else:
+        flash('取消关注失败！')
+    return redirect(request.referrer)

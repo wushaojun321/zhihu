@@ -1,0 +1,27 @@
+{% extends './base.html' %}
+	{% block content %}
+	<div class="span9">
+				
+				<h1 class="page-title">
+					<i class="icon-pushpin"></i>
+					{{ user.name }}的答案					
+				</h1>
+			</div>
+
+	<div class="span9">
+
+<ul>
+				{% for answer in res[0] %}
+			
+					<li>
+					<a href='{{url_for('auth.change_account',user_id=answer.user.id)}}'>{{answer.user.name}}
+					</a>
+					于{{answer.add_time}}回答了
+					<a href='{{url_for('auth.change_account',user_id=answer.question.user.id)}}'>{{answer.question.user.name}}
+					</a>
+					的答案（<a href="{{url_for('main.question',question_id=answer.question.id)}}">我也要答</a>）：<br><p class="indentation">{{answer.content}}</p>
+				</li>
+				{% endfor %}
+				</ul>
+	</div>
+	{% endblock %}

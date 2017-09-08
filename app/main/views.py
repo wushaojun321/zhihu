@@ -13,11 +13,9 @@ from flask_login import login_required
 @main.route('/index')
 def index():
     ''' 主页
-        这里将所有的答案取出并按赞序排序（一般不建议将表中数据取出，
-    后面可以设计只显示与用户相关的答案）
+        调用Answer的静态方法，获取赞数最多的答案
     '''
-    answers = Answer.query.all()
-    answers.sort(key=lambda i:i.like_counter,reverse=True)
+    answers = Answer.get_popular_answer()
     return render_template('main/index.html', answers = answers)
 
 
@@ -164,7 +162,7 @@ def cancel_attention_question(question_id):
 def like_answer(answer_id):
     '''传入answer_id，加上当前用户，在数据表Like_answer中插入一行,
     并在answer的like_counter中相应位置+1,从而实现点赞功能'''
-    _like_answer = Like_answer(user_id=current_user.id,answer_id=answer_id)
+    _like_answer = Like_answer(user_id=current_user.id,answer_id=int(answer_id))
     db.session.add(_like_answer)
     try:
         db.session.commit()
@@ -172,9 +170,13 @@ def like_answer(answer_id):
     except Exception as e:
         flash('点赞失败（%s）'%e)
     if Answer.update_like_counter(answer_id=answer_id,plus_or_less='plus'):
-        flash('更新赞数成功！')
+        flash('更新答案的总赞数成功！')
     else:
-        flash('更新赞数失败！')
+        flash('更新答案的总赞数失败！')
+    if User.update_like_counter(answer_id=answer_id,plus_or_less='plus'):
+        flash('更新用户的总赞数成功！')
+    else:
+        flash('更新用户的总赞数失败！')
     return redirect(request.referrer)
 
 @main.route('/cancel_like_answer/<answer_id>')
@@ -193,9 +195,29 @@ def cancel_like_answer(answer_id):
         flash('更新赞数成功！')
     else:
         flash('更新赞数失败！')
+    if User.update_like_counter(answer_id=answer_id,plus_or_less='less'):
+        flash('更新用户的总赞数成功！')
+    else:
+        flash('更新用户的总赞数失败！')
     return redirect(request.referrer)
 
-  
+@main.route('/like_list/<like_or_bylike>/<user_id>')
+def like_list(like_or_bylike,user_id):
+    '''显示用户赞或者被赞的条目，返回给前端的是Like_answer的查询结果的列表'''
+    user = User.query.get(user_id)
+    if like_or_bylike == 'like':    
+        res = user.counter_like_answer()
+    if like_or_bylike == 'bylike':
+        res = user.counter_bylike()
+    return render_template('main/like_list.html',res=res,user=user,like_or_bylike=like_or_bylike)
+
+@main.route('/answers_list/<user_id>')
+def answers_list(user_id):
+    user = User.query.get(user_id)
+    answers = user.answer_asked()
+    return render_template('main/answers_list.html',res=answers,user=user)
+
+
 
 
 

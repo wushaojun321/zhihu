@@ -5,6 +5,7 @@ from flask_login import UserMixin
 from . import login_manager
 import datetime
 import sqlalchemy
+import collections
 
 class Role(db.Model):
     '''用户权限：管理员，超管，普通用户'''
@@ -31,6 +32,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(32), nullable=False)
     name = db.Column(db.String(80))
     reg_time = db.Column(db.DateTime, default = datetime.datetime.now)
+    like_counter = db.Column(db.Integer, default = 0)
     last_login_time = db.Column(db.DateTime)
     #一对多关系中多的一方
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), default=3)
@@ -46,6 +48,11 @@ class User(UserMixin, db.Model):
     follower = db.relationship('Attention_user', foreign_keys=[Attention_user.followed_id],
                                 backref=db.backref('followed', lazy='joined'), lazy='dynamic',
                                 cascade = 'all, delete-orphan')
+    def is_follower(self,followed_id):
+        '''传入用户id，判断是否关注此用户'''
+        if Attention_user.query.filter_by(followed_id=self.id,follower_id=followed_id).first():
+            return True
+        return False
     def counter_followed(self):
         '''User的方法，返回粉丝列表、粉丝数目'''
         res = self.followed.all()
@@ -54,18 +61,49 @@ class User(UserMixin, db.Model):
         '''User的方法，返回关注的用户列表、数目'''
         res = self.follower.all()
         return res,len(res)
+    def attention_user(self,followed_id):
+        '''关注用户'''
+        new_attention = Attention_user(follower_id=followed_id,followed_id=self.id)
+        db.session.add(new_attention)
+        try:
+            db.session.commit()
+            return True
+        except Exception as e:
+            return False
+    def cancel_attention_user(self,followed_id):
+        '''取消关注用户'''
+        attention_user = Attention_user.query.\
+                filter_by(followed_id=self.id,follower_id=followed_id).first()
+        db.session.delete(attention_user)
+        try:
+            db.session.commit()
+            return True
+        except Exception as e:
+            return False
+        
     def counter_question_attention(self):
         '''User的方法，返回用户关注的问题的列表、数目'''
         b = Attention_question.query.filter_by(user_id=self.id).all()
         _L = [i.question_id for i in b]
         res = Question.query.filter(Question.id.in_(tuple(_L))).all()
         return res,len(res)
+    def counter_question_ask(self):
+        '''User的方法，返回用户提问的问题的列表、数目'''
+        res = Question.query.filter_by(user_id=self.id).all()
+        return res,len(res)
     def counter_like_answer(self):
-        '''User的方法，返回用户赞过的答案的列表、数目'''
-        b = Like_answer.query.filter_by(user_id=self.id).all()
-        _L = [i.answer_id for i in b]
-        res = Answer.query.filter(Answer.id.in_(tuple(_L))).all()
+        '''User的方法，返回用户赞过的Like_answer的查询结果的列表、数目'''
+        res = Like_answer.query.filter_by(user_id=self.id).all()
+
         return res, len(res) 
+    def counter_bylike(self):
+        '''返回用户获得的所有的赞，返回的是Like_answer的查询结果的列表'''
+        answers = Answer.query.filter_by(user_id=self.id)
+        _L = [answer.id for answer in answers]
+        like_answer = Like_answer.query.filter()
+        res = Like_answer.query.filter(Like_answer.answer_id.in_(tuple(_L))).all()
+        return res,len(res)
+
     def judge_attention_question(self,question_id):
         res = Attention_question.query.filter_by(user_id=self.id,question_id=question_id).first()
         if res:
@@ -76,6 +114,37 @@ class User(UserMixin, db.Model):
         if res:
             return True
         return False
+    def answer_asked(self):
+        '''返回用户写过的答案'''
+        res = Answer.query.filter_by(user_id=self.id).all()
+        return res,len(res)
+    @staticmethod
+    def insert_like_counter():
+        '''插入用户获得的赞的总数'''
+        users = User.query.all()
+        for user in users:
+            answers = Answer.query.filter_by(user_id=user.id)
+            L = [answer.id for answer in answers]
+            res = Like_answer.query.filter(Like_answer.answer_id.in_(tuple(L)))
+            user.like_counter = len(res.all())
+            db.session.add(user)
+            db.session.commit()
+
+    @staticmethod
+    def update_like_counter(answer_id,plus_or_less):
+        answer = Answer.query.get(answer_id)
+        user = User.query.get(answer.user.id)
+        if plus_or_less == 'plus':
+            user.like_counter = user.like_counter+1
+        if plus_or_less == 'less':
+            user.like_counter = user.like_counter-1
+        db.session.add(user)
+        try:
+            db.session.commit()
+            return True
+        except:
+            return False
+
 
 
 class Question(db.Model):
@@ -199,6 +268,11 @@ class Answer(db.Model):
             return True
         except:
             return False
+    @staticmethod
+    def get_popular_answer():
+        '''获得赞数最多的20个答案，并按赞数排序'''
+        res = Answer.query.order_by(Answer.like_counter.desc()).limit(20)
+        return res
 
 
 

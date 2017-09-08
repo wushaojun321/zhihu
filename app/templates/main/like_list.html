@@ -1,0 +1,48 @@
+{% extends "./base.html" %}
+	{% block link %}
+	    <link href="../../static/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../static/css/bootstrap-responsive.min.css" rel="stylesheet" />
+    
+    
+    <link href="../../static/css/font-awesome.css" rel="stylesheet" />
+    
+    <link href="../../static/css/adminia.css" rel="stylesheet" /> 
+    <link href="../../static/css/adminia-responsive.css" rel="stylesheet" /> 
+    
+    
+    <link href="../../static/css/pages/plans.css" rel="stylesheet" /> 
+	{% endblock %}
+	{% block content %}
+			<div class="span9">
+				
+				<h1 class="page-title">
+					<i class="icon-pushpin"></i>
+					{{ user.name }}{% if like_or_bylike=='like' %}的赞{% else %}获得的赞{% endif %}					
+				</h1>
+				
+			</div>
+			<div class="span9">
+<ul>
+				{% for like_answer in res[0] %}
+			
+					<li>
+					<a href='{{url_for('auth.change_account',user_id=like_answer.user.id)}}'>{{like_answer.user.name}}
+					</a>
+					于{{like_answer.like_time}}赞了
+					<a href='{{url_for('auth.change_account',user_id=like_answer.answer.user.id)}}'>{{like_answer.answer.user.name}}
+					</a>
+					的答案（<a href="{{url_for('main.question',question_id=like_answer.answer.id)}}">我也要答</a>）：<br><p class="indentation">{{like_answer.answer.content}}</p>
+				</li>
+				{% endfor %}
+				</ul>
+			</div>
+	{% endblock %}
+	{% block script %}
+	<script src="../../static/js/jquery-1.7.2.min.js"></script>
+
+
+	<script src="../../static/js/bootstrap.js"></script>
+	{% endblock %}
+	{% block img %}
+	<img src="../../static/img/headshot.png" alt="" class="thumbnail" />
+	{% endblock %}
